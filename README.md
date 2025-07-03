@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 🛍️ Proyecto Final - Aplicaciones Web II
  Descripción
 Este proyecto es una de una aplicación de e-commerce básica desarrollada con el stack MERN (MongoDB, Express, Astro, Node.js). Permite a los usuarios:
@@ -71,3 +72,7 @@ npm run dev
 Autor
 •	Estudiante: Luciano Gigena
 
+=======
+# AW2-ProyectoFinal-e-commerce-
+Este proyecto es una de una aplicación de e-commerce básica desarrollada con el stack MERN (MongoDB, Express, Astro, Node.js)
+>>>>>>> 35562098887531fa2975de120f82558f8e88f9ef
