@@ -59,10 +59,9 @@ Se verificaron y funcionan correctamente:
  Video demostración
  https://drive.google.com/uc?id=1k3qYdExbuEgN1Zx163j2h9LQqkPymdie&export=download
 
- Deploy (opcional)
-Si se publica en hosting, aquí irá la URL: https://midominio.com (opcional)
+
  Clonar y ejecutar
-git clone https://github.com/usuario/proyecto-final-aw2.git
+git clone https://github.com/luchogigena/AW2-ProyectoFinal-e-commerce-.git
 cd backend
 npm install
 cp .env.example .env  # configurar tu cadena de conexión a MongoDB
