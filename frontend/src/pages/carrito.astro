@@ -1,0 +1,107 @@
+---
+import "../styles/tailwind.css";
+---
+
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Carrito de compras</title>
+  </head>
+  <body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-6">
+      <!-- Encabezado con botones -->
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-green-700">🛒 Carrito de Compras</h1>
+        <a href="/login" class="text-blue-600 hover:underline">Ingresar</a>
+      </div>
+
+      <!-- Lista de productos -->
+      <ul id="lista" class="space-y-4 mb-6"></ul>
+
+      <!-- Botones de acción -->
+      <div class="flex justify-between items-center space-x-2">
+        <a href="/" class="text-blue-600 hover:underline">← Volver a la tienda</a>
+        <div class="flex space-x-2">
+          <button id="vaciarBtn" class="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 transition">
+            Vaciar carrito
+          </button>
+          <button id="comprarBtn" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition">
+            Finalizar compra
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      window.addEventListener('DOMContentLoaded', () => {
+        const lista = document.getElementById('lista');
+        const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+
+        if (carrito.length === 0) {
+          lista.innerHTML = '<li class="text-gray-500 text-center">El carrito está vacío</li>';
+        } else {
+          carrito.forEach(p => {
+            const li = document.createElement('li');
+            li.className = 'bg-white p-4 rounded shadow flex justify-between items-center';
+            li.innerHTML = `<span><strong>${p.name}</strong> - $${p.price}</span>`;
+            lista.appendChild(li);
+          });
+        }
+
+        // Botón para vaciar carrito
+        const vaciarBtn = document.getElementById('vaciarBtn');
+        vaciarBtn?.addEventListener('click', () => {
+          localStorage.removeItem('carrito');
+          location.reload();
+        });
+
+        // Botón para finalizar compra
+        const comprarBtn = document.getElementById('comprarBtn');
+        comprarBtn?.addEventListener('click', async () => {
+          const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+          const token = localStorage.getItem('token');
+
+          if (!token) {
+            alert('Debes iniciar sesión para comprar.');
+            window.location.href = '/login';
+            return;
+          }
+
+          if (!carrito.length) {
+            alert('El carrito está vacío');
+            return;
+          }
+
+          const productos = carrito.map(p => ({
+            productoId:p.id || p._id,
+            cantidad: p.cantidad || 1
+          }));
+
+          const total = carrito.reduce((acc, p) => acc + p.price * (p.cantidad || 1), 0);
+
+          try {
+            const res = await fetch('http://localhost:3001/api/orders/create', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ productos, total }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.mensaje || 'Error al procesar la orden');
+
+            alert('Compra realizada con éxito. Orden #' + data._id);
+            localStorage.removeItem('carrito');
+            window.location.href = '/';
+          } catch (error) {
+            console.error('Error:', error);
+            alert('Error al finalizar la compra. Verificá que el backend esté activo o tu sesión válida.');
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

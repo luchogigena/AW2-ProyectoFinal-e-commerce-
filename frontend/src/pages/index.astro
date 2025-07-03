@@ -1,0 +1,87 @@
+---
+import "../styles/tailwind.css";
+---
+
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tienda</title>
+  </head>
+  <body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-6">
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="text-4xl font-bold text-blue-700 flex items-center gap-2">🛍️ Tienda Online</h1>
+        <a href="/carrito" class="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
+          🛒 <span>Carrito</span>
+        </a>
+      </div>
+
+      <div class="flex justify-center gap-4 mb-6">
+        <button data-cat="" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded shadow">Todos</button>
+        <button data-cat="ropa" class="bg-indigo-200 hover:bg-indigo-300 px-4 py-2 rounded shadow">👕 Ropa</button>
+        <button data-cat="calzado" class="bg-yellow-200 hover:bg-yellow-300 px-4 py-2 rounded shadow">👟 Calzado</button>
+      </div>
+
+      <ul id="lista" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></ul>
+    </div>
+
+    <script type="module">
+      async function cargarProductos(categoria = '') {
+        const endpoint = categoria
+          ? `http://localhost:3001/api/productos?categoria=${categoria}`
+          : `http://localhost:3001/api/productos`;
+
+        const res = await fetch(endpoint);
+        const productos = await res.json();
+
+        const lista = document.getElementById('lista');
+        lista.innerHTML = '';
+
+        productos.forEach(p => {
+          const badgeColor = p.descripcion?.toLowerCase().includes('ropa') ? 'bg-indigo-200 text-indigo-800' :
+                             p.descripcion?.toLowerCase().includes('calzado') ? 'bg-yellow-200 text-yellow-800' :
+                             'bg-gray-200 text-gray-700';
+
+          const li = document.createElement('li');
+          li.className = 'bg-white shadow-md rounded-2xl p-6 flex flex-col space-y-4 border hover:shadow-xl transition';
+
+          li.innerHTML = `
+  <strong class="text-lg font-semibold text-gray-800">${p.name}</strong>
+  <span class="text-sm text-gray-600">$${p.price} - <span class="capitalize">${p.categoria || 'sin categoría'}</span></span>
+  <button
+    class="agregar-btn mt-auto bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition"
+    data-id="${p._id}"
+    data-name="${p.name}"
+    data-price="${p.price}">
+    ➕ Agregar al carrito
+  </button>
+`;
+          lista.appendChild(li);
+        });
+
+        document.querySelectorAll('.agregar-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const producto = {
+              id: btn.dataset.id,
+              name: btn.dataset.name,
+              price: parseFloat(btn.dataset.price)
+            };
+            const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+            carrito.push(producto);
+            localStorage.setItem('carrito', JSON.stringify(carrito));
+            alert(`${producto.name} agregado al carrito`);
+          });
+        });
+      }
+
+      window.addEventListener('DOMContentLoaded', () => {
+        cargarProductos();
+        document.querySelectorAll('button[data-cat]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            cargarProductos(btn.dataset.cat);
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
